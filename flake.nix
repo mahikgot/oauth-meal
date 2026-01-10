@@ -11,7 +11,7 @@
       in
       {
         devShell = with pkgs; mkShell {
-          buildInputs = [ jdk21_headless jdt-language-server ];
+          buildInputs = [ jdk21_headless jdt-language-server postgresql ];
         };
       }
     );

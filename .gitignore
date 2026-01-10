@@ -34,3 +34,6 @@ build/
 
 .direnv
 .envrc
+*.lock
+logfile
+.tmp/**
