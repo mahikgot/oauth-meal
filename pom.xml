@@ -79,31 +79,21 @@
               <include>pom.xml</include>
             </includes>
             <sortPom/>
-            <!-- has its own section below -->
           </pom>
           <java>
             <palantirJavaFormat>
               <version>2.39.0</version>
-              <!-- optional -->
               <style>PALANTIR</style>
-              <!-- or AOSP/GOOGLE (optional) -->
               <formatJavadoc>true</formatJavadoc>
-              <!-- defaults to false (optional, requires at least Palantir 2.39.0) -->
             </palantirJavaFormat>
-
-            <!-- make sure every file has the following copyright header.
-			        optionally, Spotless can set copyright years by digging
-			        through git history (see "license" section below) -->
             <licenseHeader>
-              <content>/* (C)$YEAR */</content>
-              <!-- or <file>${project.basedir}/license-header</file> -->
+              <file>./src/main/resources/license-header</file>
             </licenseHeader>
           </java>
         </configuration>
         <executions>
           <execution>
             <goals>
-              <goal>check</goal>
               <goal>apply</goal>
             </goals>
             <phase>compile</phase>
