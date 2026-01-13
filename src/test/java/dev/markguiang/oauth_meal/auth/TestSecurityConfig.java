@@ -23,11 +23,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @TestConfiguration
 public class TestSecurityConfig {
+    public static String validUsername = "username";
+    public static String validRawPassword = "password";
+
     @Bean
     @Primary
     public UserDetailsService userDetailsService(PasswordEncoder pe) {
         return (username) -> {
-            return new AuthUserDetails("username", pe.encode("password"));
+            return new AuthUserDetails(validUsername, pe.encode(validRawPassword));
         };
     }
 }

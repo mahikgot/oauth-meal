@@ -18,6 +18,7 @@ package dev.markguiang.oauth_meal.auth;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +39,8 @@ public class BasicAuthSecurityTests {
     private WebApplicationContext context;
 
     private MockMvc mvc;
-    private RequestPostProcessor validBasic = httpBasic("username", "password");
+    private RequestPostProcessor validBasic =
+            httpBasic(TestSecurityConfig.validUsername, TestSecurityConfig.validRawPassword);
     private RequestPostProcessor invalidBasic = httpBasic("NOTEXISTING", "WRONGPASSWORD");
 
     @BeforeEach
@@ -55,6 +57,8 @@ public class BasicAuthSecurityTests {
 
     @Test
     public void shouldRedirectToLogin_whenInvalidBasicAuthProvided() throws Exception {
-        mvc.perform(get("/auth/test").with(invalidBasic)).andExpect(status().is3xxRedirection());
+        mvc.perform(get("/auth/test").with(invalidBasic))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/auth/login"));
     }
 }
