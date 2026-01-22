@@ -21,12 +21,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
@@ -34,13 +34,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain configure(HttpSecurity http, FilterRegistrationBean<BasicAuthenticationFilter> baf) {
         http.authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/auth/login")
+                        .requestMatchers("/login", "/error")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
                 .addFilter(baf.getFilter())
-                .exceptionHandling((exceptionHandling) -> exceptionHandling.authenticationEntryPoint(
-                        new LoginUrlAuthenticationEntryPoint("/auth/login")));
+                .formLogin((formLogin) -> formLogin.loginPage("/login"))
+                .logout((logout) -> logout.logoutSuccessUrl("/login"))
+                .oauth2Login(Customizer.withDefaults());
         return http.build();
     }
 

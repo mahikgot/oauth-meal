@@ -59,6 +59,6 @@ public class BasicAuthSecurityTests {
     public void shouldRedirectToLogin_whenInvalidBasicAuthProvided() throws Exception {
         mvc.perform(get("/auth/test").with(invalidBasic))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/auth/login"));
+                .andExpect(redirectedUrl("/login"));
     }
 }

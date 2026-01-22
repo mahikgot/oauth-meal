@@ -26,9 +26,4 @@ public class AuthController {
     public String test() {
         return "you are authorized!";
     }
-
-    @GetMapping("/login")
-    public String login() {
-        return "should redirect here when accessing unauthorized resource";
-    }
 }
