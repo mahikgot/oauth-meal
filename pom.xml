@@ -102,6 +102,7 @@
               <style>PALANTIR</style>
               <formatJavadoc>true</formatJavadoc>
             </palantirJavaFormat>
+            <removeUnusedImports/>
             <licenseHeader>
               <file>./src/main/resources/license-header</file>
             </licenseHeader>
