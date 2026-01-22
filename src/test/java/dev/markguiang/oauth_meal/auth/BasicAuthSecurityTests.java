@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -56,9 +57,17 @@ public class BasicAuthSecurityTests {
     }
 
     @Test
+    public void shouldAllowAccess_whenSessionIsReusedWithoutCredentials() throws Exception {
+        var session = new MockHttpSession();
+        mvc.perform(get("/auth/test").with(validBasic).session(session)).andExpect(status().isOk());
+
+        mvc.perform(get("/auth/test").session(session)).andExpect(status().isOk());
+    }
+
+    @Test
     public void shouldRedirectToLogin_whenInvalidBasicAuthProvided() throws Exception {
         mvc.perform(get("/auth/test").with(invalidBasic))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/login"));
+                .andExpect(redirectedUrl("/auth/login"));
     }
 }

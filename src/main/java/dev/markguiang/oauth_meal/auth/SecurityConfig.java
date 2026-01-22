@@ -21,36 +21,43 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 
 @Configuration
 public class SecurityConfig {
     @Bean
     public SecurityFilterChain configure(HttpSecurity http, FilterRegistrationBean<BasicAuthenticationFilter> baf) {
         http.authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/login", "/error")
+                        .requestMatchers("/auth/login", "/error")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
                 .addFilter(baf.getFilter())
-                .formLogin((formLogin) -> formLogin.loginPage("/login"))
-                .logout((logout) -> logout.logoutSuccessUrl("/login"))
-                .oauth2Login(Customizer.withDefaults());
+                .formLogin((formLogin) -> formLogin.loginPage("/auth/login"))
+                .oauth2Login((oauth2) -> oauth2.loginPage("/auth/login"));
         return http.build();
     }
 
     @Bean
-    public FilterRegistrationBean<BasicAuthenticationFilter> basicAuthenticationFilter(AuthenticationManager am) {
+    public FilterRegistrationBean<BasicAuthenticationFilter> basicAuthenticationFilter(
+            AuthenticationManager am, SecurityContextRepository hsscp) {
         var baf = new BasicAuthenticationFilter(am);
+        baf.setSecurityContextRepository(hsscp);
         var frb = new FilterRegistrationBean<>(baf);
         frb.setEnabled(false);
         return frb;
+    }
+
+    @Bean
+    SecurityContextRepository securityContextRepository() {
+        return new HttpSessionSecurityContextRepository();
     }
 
     @Bean

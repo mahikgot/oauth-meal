@@ -15,13 +15,34 @@
 */
 package dev.markguiang.oauth_meal.auth;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-@RestController
+@Controller
 @RequestMapping("/auth")
 public class AuthController {
+    private final ClientRegistrationRepository clientRegistrationRepository;
+
+    public AuthController(ClientRegistrationRepository clientRegistrationRepository) {
+        this.clientRegistrationRepository = clientRegistrationRepository;
+    }
+
+    @GetMapping("/login")
+    public String login(Model model) {
+        List<ClientRegistration> clients = new ArrayList<>();
+        ((Iterable<ClientRegistration>) clientRegistrationRepository).forEach(clients::add);
+        model.addAttribute("oauth2Clients", clients);
+        return "login";
+    }
+
+    @ResponseBody
     @GetMapping("/test")
     public String test() {
         return "you are authorized!";
