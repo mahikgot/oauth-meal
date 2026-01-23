@@ -35,13 +35,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain configure(HttpSecurity http, FilterRegistrationBean<BasicAuthenticationFilter> baf) {
         http.authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/auth/login", "/error")
+                        .requestMatchers("/error")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
                 .addFilter(baf.getFilter())
-                .formLogin((formLogin) -> formLogin.loginPage("/auth/login"))
-                .oauth2Login((oauth2) -> oauth2.loginPage("/auth/login"));
+                .formLogin((formLogin) -> formLogin.loginPage("/auth/login").permitAll())
+                .oauth2Login((oauth2) -> oauth2.loginPage("/auth/login").permitAll());
         return http.build();
     }
 
