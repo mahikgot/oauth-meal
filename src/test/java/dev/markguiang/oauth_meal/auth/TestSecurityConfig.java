@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @TestConfiguration
@@ -26,11 +27,17 @@ public class TestSecurityConfig {
     public static String validUsername = "username";
     public static String validRawPassword = "password";
 
+    public static String invalidUsername = "invalidUsername";
+    public static String invalidRawPassword = "invalidPassword";
+
     @Bean
     @Primary
     public UserDetailsService userDetailsService(PasswordEncoder pe) {
         return (username) -> {
-            return new AuthUserDetails(validUsername, pe.encode(validRawPassword));
+            if (username.equals(validUsername)) {
+                return new AuthUserDetails(validUsername, pe.encode(validRawPassword));
+            }
+            throw new UsernameNotFoundException("invalid-user");
         };
     }
 }

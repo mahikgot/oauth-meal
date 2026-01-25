@@ -15,9 +15,10 @@
 */
 package dev.markguiang.oauth_meal.auth;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -26,24 +27,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest
 @Import(TestSecurityConfig.class)
-public class BasicAuthSecurityTests {
+public class FormLoginSecurityTests {
 
     @Autowired
     private WebApplicationContext context;
 
     private MockMvc mvc;
-    private RequestPostProcessor validBasic =
-            httpBasic(TestSecurityConfig.validUsername, TestSecurityConfig.validRawPassword);
-    private RequestPostProcessor invalidBasic =
-            httpBasic(TestSecurityConfig.invalidUsername, TestSecurityConfig.invalidRawPassword);
 
     @BeforeEach
     public void setup() {
@@ -53,22 +48,21 @@ public class BasicAuthSecurityTests {
     }
 
     @Test
-    public void shouldAllowAccess_whenValidBasicAuthProvided() throws Exception {
-        mvc.perform(get("/auth/test").with(validBasic)).andExpect(status().isOk());
-    }
-
-    @Test
-    public void shouldAllowAccess_whenSessionIsReusedWithoutCredentials() throws Exception {
-        var session = new MockHttpSession();
-        mvc.perform(get("/auth/test").with(validBasic).session(session)).andExpect(status().isOk());
-
-        mvc.perform(get("/auth/test").session(session)).andExpect(status().isOk());
-    }
-
-    @Test
-    public void shouldRedirectToLogin_whenInvalidBasicAuthProvided() throws Exception {
-        mvc.perform(get("/auth/test").with(invalidBasic))
+    public void shouldAuthenticate_whenValidFormLoginCredentialsIncluded() throws Exception {
+        mvc.perform(post("/auth/login")
+                        .formField("username", TestSecurityConfig.validUsername)
+                        .formField("password", TestSecurityConfig.validRawPassword)
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/auth/login"));
+                .andExpect(authenticated().withUsername(TestSecurityConfig.validUsername));
+    }
+
+    @Test
+    public void shouldNotAuthenticate_whenInvalidFormLoginCredentialsIncluded() throws Exception {
+        mvc.perform(post("/auth/login")
+                        .formField("username", TestSecurityConfig.invalidUsername)
+                        .formField("password", TestSecurityConfig.invalidRawPassword)
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/auth/login?error"));
     }
 }
