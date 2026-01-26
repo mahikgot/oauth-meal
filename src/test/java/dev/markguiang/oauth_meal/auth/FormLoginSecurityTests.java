@@ -63,6 +63,7 @@ public class FormLoginSecurityTests {
                         .formField("username", TestSecurityConfig.invalidUsername)
                         .formField("password", TestSecurityConfig.invalidRawPassword)
                         .with(csrf()))
-                .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/auth/login?error"));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/auth/login?error"));
     }
 }
